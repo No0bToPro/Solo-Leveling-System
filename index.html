@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solo Leveling Gamification System — MVP</title>
+  <meta name="description" content="A gamified system for quests, habits, bosses (gates), rewards, streaks, and progress analytics. Free and open to all." />
+  <meta name="theme-color" content="#11101a" />
+
+  <!-- Tailwind (required) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div id="app" class="min-h-screen">
+    <header class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur">
+      <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-400 via-emerald-400 to-violet-400 text-[#11101a] flex items-center justify-center font-black">SL</div>
+          <div class="leading-tight">
+            <div class="text-base sm:text-lg font-semibold title-glow">Solo Leveling System</div>
+            <div class="text-xs text-white/60">Quests • Habits • Gates • Rewards • Analytics</div>
+          </div>
+        </div>
+
+        <nav class="flex items-center gap-2 flex-wrap justify-end" aria-label="Main navigation">
+          <button id="exportBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Export data">Export</button>
+          <button id="importBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Import data">Import</button>
+          <button id="settingsBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Open settings">Settings</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Main column -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- Dashboard -->
+        <section class="glass p-5">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-white/70 text-sm">Welcome back</div>
+              <div class="text-xl sm:text-2xl font-bold">Hunter <span id="usernameText" class="text-sky-300"></span></div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <span class="chip"><span class="text-emerald-300 font-semibold" id="rankText"></span></span>
+                <span class="chip">Streak: <span id="streakText" class="font-semibold text-violet-200"></span></span>
+                <span class="chip">Multiplier: <span id="multText" class="font-semibold text-sky-200"></span></span>
+                <span class="chip">Daily bonus: <span id="bonusText" class="font-semibold text-amber-200"></span></span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button id="demoBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Load demo data">Load demo</button>
+              <button id="resetBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-red-500/20 border border-red-400/30 text-red-100 hover:bg-red-500/25" aria-label="Reset all progress">Reset</button>
+            </div>
+          </div>
+
+          <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">Level</div>
+              <div class="text-2xl font-extrabold text-emerald-300" id="levelText">1</div>
+            </div>
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">XP (this level)</div>
+              <div class="text-2xl font-extrabold text-sky-300" id="levelXpText">0</div>
+              <div class="text-white/50 text-xs" id="xpToNextText">0 / 0</div>
+            </div>
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">Account XP</div>
+              <div class="text-2xl font-extrabold text-sky-200" id="accountXpText">0</div>
+              <div class="text-white/50 text-xs">Unlocks gates</div>
+            </div>
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">Gold</div>
+              <div class="text-2xl font-extrabold text-amber-200" id="goldText">0</div>
+            </div>
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">Quests completed</div>
+              <div class="text-2xl font-extrabold" id="questsDoneText">0</div>
+            </div>
+            <div class="glass-2 p-4">
+              <div class="text-white/60 text-xs">Bosses defeated</div>
+              <div class="text-2xl font-extrabold" id="bossDoneText">0</div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="flex items-center justify-between text-xs text-white/60">
+              <span>XP Progress</span>
+              <span id="progressPct" role="status" aria-live="polite">0%</span>
+            </div>
+            <div class="progress-bg mt-2" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Experience progress">
+              <div id="xpProgress" class="progress-bar"></div>
+            </div>
+            <div class="mt-3 text-sm text-white/70" id="nextBossPreview" role="status"></div>
+          </div>
+        </section>
+
+        <!-- Quests -->
+        <section class="glass p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h2 class="text-lg font-bold">⚔️ Quests</h2>
+            <div class="flex items-center gap-2">
+              <select id="questFilter" class="app-input text-sm py-2">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
+              <button id="clearCompletedQuests" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Clear all completed quests">Clear completed</button>
+            </div>
+          </div>
+
+          <form id="questForm" class="mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input class="app-input sm:col-span-4" name="title" required placeholder="Quest name" />
+            <select class="app-input sm:col-span-2" name="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <select class="app-input sm:col-span-2" name="duration">
+              <option value="15">15m</option>
+              <option value="30">30m</option>
+              <option value="60">1h</option>
+              <option value="120">2h+</option>
+            </select>
+            <input class="app-input sm:col-span-2" name="due" type="date" required />
+            <input class="app-input sm:col-span-2" name="category" placeholder="Category" />
+            <button class="sm:col-span-12 px-4 py-2 rounded-xl font-semibold bg-emerald-400 text-black hover:brightness-105 active:brightness-95 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" type="submit">Add quest</button>
+          </form>
+
+          <div class="mt-4 space-y-2" id="questsList"></div>
+        </section>
+
+        <!-- Habits -->
+        <section class="glass p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h2 class="text-lg font-bold">🔁 Habits</h2>
+            <div class="text-xs text-white/60">Heatmap shows last 21 days</div>
+          </div>
+
+          <form id="habitForm" class="mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input class="app-input sm:col-span-5" name="name" required placeholder="Habit name (e.g., Read 10 pages)" />
+            <select class="app-input sm:col-span-3" name="frequency">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+            <input class="app-input sm:col-span-2" name="xp" type="number" min="1" value="10" placeholder="XP" />
+            <input class="app-input sm:col-span-2" name="gold" type="number" min="0" value="5" placeholder="Gold" />
+            <button class="sm:col-span-12 px-4 py-2 rounded-xl font-semibold bg-emerald-400 text-black hover:brightness-105 active:brightness-95 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" type="submit">Add habit</button>
+          </form>
+
+          <div class="mt-4 space-y-2" id="habitList"></div>
+
+          <div class="mt-5">
+            <div class="flex items-center justify-between text-sm">
+              <div class="font-semibold">Heatmap</div>
+              <div class="text-xs text-white/60">More check-ins → brighter</div>
+            </div>
+            <div class="mt-3 heatmap" id="habitHeat"></div>
+          </div>
+        </section>
+
+        <!-- Bosses -->
+        <section class="glass p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h2 class="text-lg font-bold">🚪 Gates & Bosses</h2>
+            <div class="text-xs text-white/60">Unlock uses Account XP (not level XP)</div>
+          </div>
+
+          <form id="bossForm" class="mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input class="app-input sm:col-span-4" name="name" required placeholder="Boss name" />
+            <input class="app-input sm:col-span-2" name="unlock" type="number" min="0" required placeholder="Account XP" />
+            <input class="app-input sm:col-span-2" name="rewardXp" type="number" min="0" required placeholder="XP reward" />
+            <input class="app-input sm:col-span-2" name="rewardGold" type="number" min="0" required placeholder="Gold reward" />
+            <input class="app-input sm:col-span-2" name="tag" placeholder="Tag" />
+            <textarea class="app-input sm:col-span-12" name="desc" placeholder="Challenge details (optional)" rows="2"></textarea>
+            <button class="sm:col-span-12 px-4 py-2 rounded-xl font-semibold bg-red-400 text-black hover:brightness-105 active:brightness-95 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" type="submit">Add gate/boss</button>
+          </form>
+
+          <div class="mt-4 space-y-2" id="bossList"></div>
+        </section>
+
+        <!-- Rewards -->
+        <section class="glass p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <h2 class="text-lg font-bold">🎁 Rewards store</h2>
+            <div class="text-xs text-white/60">Spend gold to reinforce positive behavior</div>
+          </div>
+
+        
+          <form id="rewardForm" class="mt-4 grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <input class="app-input sm:col-span-6" name="name" required placeholder="Reward (e.g., Coffee, Game time)" />
+            <input class="app-input sm:col-span-3" name="cost" type="number" min="1" required placeholder="Gold cost" />
+            <input class="app-input sm:col-span-3" name="category" placeholder="Category" />
+            <button class="sm:col-span-12 px-4 py-2 rounded-xl font-semibold bg-amber-300 text-black hover:brightness-105 active:brightness-95 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" type="submit">Add reward</button>
+          </form>
+
+          <div class="mt-4 space-y-2" id="rewardList"></div>
+        </section>
+
+        <!-- Import/Export (secondary placement for mobile) -->
+        <section class="glass p-5 lg:hidden">
+          <h2 class="text-lg font-bold">⬆️⬇️ Import / Export</h2>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="exportBtn2" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Export JSON</button>
+            <button id="importBtn2" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Import JSON</button>
+          </div>
+          <div class="mt-2 text-xs text-white/60">Keep a backup of your progress.</div>
+        </section>
+      </div>
+
+      <!-- Right column -->
+      <aside class="lg:col-span-4 space-y-6">
+        <!-- Awakening -->
+        <section class="glass p-5">
+          <h2 class="text-lg font-bold">🌌 Awakening</h2>
+          <div class="mt-3">
+            <label class="text-sm font-semibold text-emerald-200">Vision (Ideal Self)</label>
+            <textarea id="visionArea" class="app-input w-full mt-2" rows="4" placeholder="Who do you want to become?"></textarea>
+            <button id="saveVision" class="mt-2 px-3 py-2 rounded-xl text-sm font-semibold bg-emerald-400 text-black hover:brightness-105 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" aria-label="Save vision">Save</button>
+          </div>
+          <div class="mt-4">
+            <label class="text-sm font-semibold text-red-200">Anti-vision (Consequence)</label>
+            <textarea id="antiArea" class="app-input w-full mt-2" rows="4" placeholder="What happens if you don’t change?"></textarea>
+            <button id="saveAnti" class="mt-2 px-3 py-2 rounded-xl text-sm font-semibold bg-red-400 text-black hover:brightness-105 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]" aria-label="Save anti-vision">Save</button>
+          </div>
+        </section>
+
+        <!-- Analytics -->
+        <section class="glass p-5">
+          <h2 class="text-lg font-bold">📊 Analytics</h2>
+          <div class="mt-3 grid grid-cols-1 gap-3">
+            <div class="glass-2 p-3">
+              <div class="text-xs text-white/60">Account XP (last 14 days)</div>
+              <canvas id="xpChart" class="mt-2" style="max-height: 160px;"></canvas>
+            </div>
+            <div class="glass-2 p-3">
+              <div class="text-xs text-white/60">Quests breakdown</div>
+              <canvas id="questChart" class="mt-2" style="max-height: 140px;"></canvas>
+            </div>
+            <div class="glass-2 p-3">
+              <div class="text-xs text-white/60">Top habit streaks</div>
+              <canvas id="habitChart" class="mt-2" style="max-height: 140px;"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Activity log (retention feature) -->
+        <section class="glass p-5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold">🧾 Activity</h2>
+            <button id="clearActivity" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15 transition-all duration-200" aria-label="Clear activity log">Clear</button>
+          </div>
+          <div id="activityList" class="mt-3 space-y-2"></div>
+        </section>
+
+
+        <!-- Import/Export (desktop placement) -->
+        <section class="glass p-5 hidden lg:block">
+          <h2 class="text-lg font-bold">⬆️⬇️ Import / Export</h2>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="exportBtn3" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Export JSON</button>
+            <button id="importBtn3" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Import JSON</button>
+          </div>
+          <div class="mt-2 text-xs text-white/60">Keep regular backups to protect your progress.</div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="mx-auto max-w-6xl px-4 pb-10 text-xs text-white/50">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>Solo Leveling System MVP • Local-first • Export/import supported • Data saved in your browser</div>
+        <a class="underline hover:text-white" href="mailto:feedback@example.com?subject=Solo%20Leveling%20MVP%20Feedback">Send feedback</a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="toastHost" class="toast-host"></div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="importFile" style="display:none" accept=".json,application/json" />
+
+
+  <!-- Settings modal -->
+  <div id="settingsBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <header class="p-4 flex items-start justify-between gap-3">
+        <div>
+          <div class="text-lg font-bold">Settings</div>
+          <div class="text-xs text-white/60">Personalization settings</div>
+        </div>
+        <button id="closeSettings" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Close</button>
+      </header>
+      <div class="p-4 space-y-3">
+        <div class="glass-2 p-4">
+          <div class="text-sm font-semibold">Profile</div>
+          <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div>
+              <label class="text-xs text-white/60">Username</label>
+              <input id="usernameInput" class="app-input w-full mt-1" placeholder="Player" />
+            </div>
+            <div>
+              <label class="text-xs text-white/60">Email (for receipts / cloud sync later)</label>
+              <input id="emailInput" type="email" class="app-input w-full mt-1" placeholder="you@domain.com" />
+            </div>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="saveSettings" class="px-4 py-2 rounded-xl font-semibold bg-emerald-400 text-black hover:brightness-105">Save</button>
+          </div>
+        </div>
+
+        <div class="glass-2 p-4">
+          <div class="text-sm font-semibold">Data</div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="exportBtn4" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Export</button>
+            <button id="importBtn4" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15">Import</button>
+          </div>
+          <div class="mt-2 text-xs text-white/60">
+            All data is stored locally in your browser. It will persist until you clear your browser data.
+            Auto-saves every 30 seconds and on page close.
+          </div>
+        </div>
+
+        <div class="glass-2 p-4">
+          <div class="text-sm font-semibold text-red-200">Danger zone</div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="hardReset" class="px-3 py-2 rounded-xl text-sm font-semibold bg-red-500/20 border border-red-400/30 text-red-100 hover:bg-red-500/25">Reset everything</button>
+          </div>
+          <div class="mt-2 text-xs text-white/60">This cannot be undone (export first).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App logic -->
+  <script src="app.js" defer></script>
+</body>
+</html>
