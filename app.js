@@ -23,6 +23,7 @@ const DIFFICULTY_XP = { easy: 10, medium: 25, hard: 50 };
 const DURATION_MULT = { 15: 1, 30: 1.5, 60: 2, 120: 3 };
 
 let xpChartInstance, questChartInstance, habitChartInstance;
+let deferredPrompt = null; // Saved install prompt event for PWA
 
 const defaultState = () => ({
   version: 2,
@@ -1869,6 +1870,40 @@ function init() {
         console.log(`Your data was last saved ${daysDiff} day(s) ago. Data persists in your browser.`);
       }
     }
+  }
+
+  // Register service worker for PWA & offline support
+  if ('serviceWorker' in navigator) {
+    try {
+      navigator.serviceWorker.register('/service-worker.js').then(reg => {
+        console.log('Service worker registered.', reg.scope);
+      }).catch(e => console.warn('Service worker registration failed:', e));
+    } catch (e) {
+      console.warn('Service worker registration error:', e);
+    }
+  }
+
+  // Capture the PWA beforeinstallprompt event so we can trigger it from UI
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.classList.remove('hidden');
+  });
+
+  // Install button handling
+  const installBtn = document.getElementById('installBtn');
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice && choice.outcome) {
+        console.log('User choice for PWA install:', choice.outcome);
+      }
+      deferredPrompt = null;
+      installBtn.classList.add('hidden');
+    });
   }
 }
 

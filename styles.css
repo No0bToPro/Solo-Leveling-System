@@ -81,6 +81,26 @@ body {
   transition: var(--transition);
   font-size: 14px;
 }
+
+/* Increase touch target sizes on small/mobile devices */
+@media (max-width: 640px) {
+  .app-input {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+  button {
+    padding: 12px 14px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+  header .h-10 { transform: none; }
+  .chip { padding: 8px 12px; font-size: 13px; }
+  .glass, .glass-2 { border-radius: 12px; }
+  .heat-cell { height: 26px; border-radius: 8px; }
+}
+
+/* Use safe area insets to handle notches on Android fullscreen */
+header { padding-top: env(safe-area-inset-top); }
 .app-input:hover {
   border-color: rgba(255,255,255,0.15);
   background: rgba(17, 16, 26, 0.65);
