@@ -116,6 +116,23 @@ body {
   .heat-cell { height: 26px; border-radius: 8px; }
 }
 
+/* Improve contrast for danger zone labels in modal */
+.modal .text-red-200 { color: #ffb4b4 !important; }
+.modal .text-red-100 { color: #fff !important; }
+
+/* Mobile quick action bar */
+.mobile-actions {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 70;
+  padding: 6px;
+}
+.mobile-actions button { box-shadow: var(--shadow); min-width: 64px; }
+
 /* Use safe area insets to handle notches on Android fullscreen */
 header { padding-top: env(safe-area-inset-top); }
 .app-input:hover {
@@ -274,7 +291,7 @@ header .h-10:hover {
   to { opacity: 1; }
 }
 .modal {
-  width: min(720px, 100%);
+  width: min(720px, 95%);
   max-height: 90vh;
   overflow-y: auto;
   border-radius: 20px;
@@ -283,6 +300,7 @@ header .h-10:hover {
   box-shadow: 0 24px 80px rgba(0,0,0,0.65);
   backdrop-filter: blur(12px);
   overflow: hidden;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
   transform: scale(0.95);
   transition: transform var(--transition-slow);
 }
@@ -291,11 +309,42 @@ header .h-10:hover {
 }
 .modal header { border-bottom: 1px solid rgba(255,255,255,0.10); }
 
+/* Mobile-specific dialog handling: avoid centering when keyboard is open and allow better scrolling */
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: flex-start;
+    padding: calc(env(safe-area-inset-top) + 12px) 12px 24px 12px;
+    overflow-y: auto;
+    justify-content: flex-start;
+  }
+  .modal {
+    width: 100%;
+    max-height: calc(100vh - (env(safe-area-inset-top) + env(safe-area-inset-bottom) + 24px));
+    border-radius: 12px;
+    margin: 0 auto;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  }
+  .modal header {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(30, 24, 48, 0.9), rgba(14, 12, 24, 0.9));
+  }
+  .modal .glass-2 { margin-bottom: 10px; }
+}
+
+/* Ensure when dialog opens, we don't have the body overscroll causing issues */
+body.modal-open {
+  overflow: hidden;
+}
+
 /* Button enhancements */
 button {
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+  touch-action: manipulation; /* improves tap responsiveness on touch devices */
 }
 button:active {
   transform: scale(0.98);
@@ -328,6 +377,12 @@ button:disabled {
 }
 .glass-2 {
   animation: slideUp 0.3s ease-out;
+}
+
+/* Make charts responsive and smaller on mobile */
+.glass-2 canvas, canvas { width: 100% !important; max-height: 160px; }
+@media (max-width: 640px) {
+  .glass-2 canvas, canvas { max-height: 120px; }
 }
 
 /* Empty state styling */

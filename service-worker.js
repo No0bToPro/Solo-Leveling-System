@@ -12,6 +12,8 @@ const PRECACHE_URLS = [
   '/icons/icon-512.svg'
 ];
 
+const EXTERNAL_CDN_HOSTS = ['cdn.jsdelivr.net'];
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then(cache => cache.addAll(PRECACHE_URLS))
@@ -35,10 +37,9 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Don't try to cache analytics or external auth flows
-  if (url.origin !== location.origin) {
-    return;
-  }
+  // Allow caching for the app origin and certain CDN hosts (e.g., chart.js CDN)
+  const allowed = url.origin === location.origin || EXTERNAL_CDN_HOSTS.includes(url.hostname);
+  if (!allowed) return;
 
   // For navigation requests, try network then cache, fallback to offline page
   if (event.request.mode === 'navigate') {
@@ -54,8 +55,9 @@ self.addEventListener('fetch', event => {
       if (cached) return cached;
       return caches.open(RUNTIME_CACHE).then(cache =>
         fetch(event.request).then(response => {
-          // Avoid storing opaque responses and error responses
-          if (!response || response.status !== 200 || response.type === 'opaque') return response;
+          // Avoid storing failed responses. Allow opaque responses for known CDNs
+          if (!response || response.status !== 200) return response;
+          if (response.type === 'opaque' && !EXTERNAL_CDN_HOSTS.includes(url.hostname)) return response;
           cache.put(event.request, response.clone());
           return response;
         }).catch(err => {

@@ -24,6 +24,12 @@ http-server -c-1 .
 4. Try going offline (toggle devtools offline or disable network on your phone) and verify the app serves `offline.html` for navigations.
 5. Verify icons and `manifest.json` are detected (Chrome DevTools → Application → Manifest).
 
+### Verify Settings modal & Danger Zone on Mobile
+- Open Settings (top-right → Settings) while on mobile or using Device Toolbar.
+- Ensure the modal's header and the "Danger zone" section (Reset everything) are visible and reachable by scrolling.
+- When the virtual keyboard is open (e.g., focus the Username field), verify the modal scrolls correctly and the Danger Zone button is not permanently hidden.
+If you find the Danger Zone content is still clipped, try closing the keyboard and scroll within the modal — the layout uses a sticky header and safe-area padding for visibility.
+
 ## Developer notes
 - If you edit `service-worker.js`, you may need to `unregister` existing workers in DevTools and reload the page to reload the new service worker during development.
 - To test updates, change the `PRECACHE_URLS` or bump the cache name (currently `solo-v1-static`) and reload the site.

@@ -1067,7 +1067,7 @@ function renderCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { labels: { color: "rgba(233,231,255,0.85)", font: { size: 11 } } }
         },
@@ -1103,7 +1103,7 @@ function renderCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { color: "rgba(233,231,255,0.72)" }, grid: { color: "rgba(255,255,255,0.06)" } },
@@ -1144,7 +1144,7 @@ function renderCharts() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: { legend: { labels: { color: "rgba(233,231,255,0.85)", font: { size: 11 } } } },
         scales: {
           x: { ticks: { color: "rgba(233,231,255,0.72)" }, grid: { color: "rgba(255,255,255,0.06)" } },
@@ -1163,10 +1163,23 @@ function openSettings() {
   $("#usernameInput").value = state.data.profile.username || "";
   $("#emailInput").value = state.data.profile.email || "";
   $("#settingsBackdrop").classList.add("show");
+  document.body.classList.add('modal-open');
+  const closeBtn = document.getElementById('closeSettings');
+  // Focus the first input for quick accessibility
+  const firstInput = document.querySelector('#settingsBackdrop .modal input, #settingsBackdrop .modal textarea');
+  if (firstInput) {
+    setTimeout(() => firstInput.focus(), 40);
+  } else if (closeBtn) {
+    setTimeout(() => closeBtn.focus(), 40);
+  }
+  // Ensure modal scrolls to top on open so header and all sections are seen
+  const modalEl = document.querySelector('#settingsBackdrop .modal');
+  if (modalEl) modalEl.scrollTop = 0;
 }
 
 function closeSettings() {
   $("#settingsBackdrop").classList.remove("show");
+  document.body.classList.remove('modal-open');
 }
 
 function exportData() {
@@ -1267,6 +1280,28 @@ function wireEvents() {
     saveState();
     renderAll();
     toast("Reset complete. Default quests, gates, and rewards have been added.", "success");
+  });
+
+  // Mobile quick action buttons for parity with desktop
+  const quickQuestBtn = document.getElementById('quickQuestBtn');
+  if (quickQuestBtn) quickQuestBtn.addEventListener('click', () => {
+    const el = document.querySelector('#questForm input[name="title"]');
+    if (el) { el.focus(); window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' }); }
+  });
+  const quickHabitBtn = document.getElementById('quickHabitBtn');
+  if (quickHabitBtn) quickHabitBtn.addEventListener('click', () => {
+    const el = document.querySelector('#habitForm input[name="name"]');
+    if (el) { el.focus(); window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' }); }
+  });
+  const quickBossBtn = document.getElementById('quickBossBtn');
+  if (quickBossBtn) quickBossBtn.addEventListener('click', () => {
+    const el = document.querySelector('#bossForm input[name="name"]');
+    if (el) { el.focus(); window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' }); }
+  });
+  const quickRewardBtn = document.getElementById('quickRewardBtn');
+  if (quickRewardBtn) quickRewardBtn.addEventListener('click', () => {
+    const el = document.querySelector('#rewardForm input[name="name"]');
+    if (el) { el.focus(); window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' }); }
   });
 
   // Dashboard reset
@@ -1902,7 +1937,10 @@ function init() {
     e.preventDefault();
     deferredPrompt = e;
     const btn = document.getElementById('installBtn');
-    if (btn) btn.classList.remove('hidden');
+    if (btn) {
+      btn.classList.remove('hidden');
+      btn.classList.add('install-visible');
+    }
   });
 
   // Install button handling
@@ -1916,6 +1954,7 @@ function init() {
         console.log('User choice for PWA install:', choice.outcome);
       }
       deferredPrompt = null;
+      installBtn.classList.remove('install-visible');
       installBtn.classList.add('hidden');
     });
   }
