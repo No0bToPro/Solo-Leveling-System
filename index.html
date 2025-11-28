@@ -6,6 +6,8 @@
   <title>Solo Leveling Gamification System — MVP</title>
   <meta name="description" content="A gamified system for quests, habits, bosses (gates), rewards, streaks, and progress analytics. Free and open to all." />
   <meta name="theme-color" content="#11101a" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/icons/icon-192.svg" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -20,6 +22,9 @@
 
   <!-- App styles -->
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/icon-192.svg" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg">
 </head>
 
 <body>
@@ -61,7 +66,8 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <button id="demoBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Load demo data">Load demo</button>
+                  <button id="demoBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15" aria-label="Load demo data">Load demo</button>
+                  <button id="installBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-white/10 border border-white/10 hover:bg-white/15 hidden" aria-label="Install app">Install</button>
               <button id="resetBtn" class="px-3 py-2 rounded-xl text-sm font-semibold bg-red-500/20 border border-red-400/30 text-red-100 hover:bg-red-500/25" aria-label="Reset all progress">Reset</button>
             </div>
           </div>

@@ -1877,6 +1877,20 @@ function init() {
     try {
       navigator.serviceWorker.register('/service-worker.js').then(reg => {
         console.log('Service worker registered.', reg.scope);
+        // Notify when a new service worker is found
+        if (reg) {
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed') {
+                if (navigator.serviceWorker.controller) {
+                  toast('Update available — reload to apply the latest changes.', 'info');
+                }
+              }
+            });
+          });
+        }
       }).catch(e => console.warn('Service worker registration failed:', e));
     } catch (e) {
       console.warn('Service worker registration error:', e);
@@ -1905,6 +1919,13 @@ function init() {
       installBtn.classList.add('hidden');
     });
   }
+
+  // Hide install button and show success toast after app is installed
+  window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.classList.add('hidden');
+    toast('App installed successfully. Enjoy offline access!', 'success');
+  });
 }
 
 window.addEventListener("load", init);
