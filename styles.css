@@ -45,6 +45,11 @@ body {
   display: inline-flex !important;
 }
 
+/* In standalone mode the install prompt is not useful, hide the button */
+@media (display-mode: standalone) {
+  #installBtn { display: none !important; }
+}
+
 .glass {
   background: linear-gradient(180deg, var(--color-panel), rgba(20, 16, 34, 0.62));
   border: 1px solid var(--color-border);
