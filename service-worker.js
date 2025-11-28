@@ -2,14 +2,14 @@ const STATIC_CACHE = 'solo-v1-static'
 const RUNTIME_CACHE = 'solo-v1-runtime'
 
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
-  '/offline.html',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './manifest.json',
+  './offline.html',
+  './icons/icon-192.svg',
+  './icons/icon-512.svg'
 ];
 
 const EXTERNAL_CDN_HOSTS = ['cdn.jsdelivr.net'];

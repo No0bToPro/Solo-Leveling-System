@@ -24,6 +24,17 @@ http-server -c-1 .
 4. Try going offline (toggle devtools offline or disable network on your phone) and verify the app serves `offline.html` for navigations.
 5. Verify icons and `manifest.json` are detected (Chrome DevTools → Application → Manifest).
 
+## Deployment (GitHub Pages)
+1. Push your commits to the `master` branch of the repo on GitHub (we did not push automatically).
+2. The included GitHub Actions workflow `.github/workflows/deploy.yml` will automatically build and deploy the `master` branch contents to the `gh-pages` branch on push.
+3. After the workflow completes (Actions → Select the workflow → Open latest run), your site will be published at:
+	- https://<username>.github.io/<repo-name>/ (if repo is public)
+
+Notes:
+- The workflow will use the repository root as publish directory. If you prefer a static build step, modify `publish_dir` in the workflow.
+- If you want the site at https://<username>.github.io (without the repo path), use `username.github.io` as the repo name and set Pages source to gh-pages branch.
+- If the GitHub Pages path does not behave as expected, confirm `start_url` in `manifest.json` and service worker URLs are correct (we now use relative paths which usually work).
+
 ### Verify Settings modal & Danger Zone on Mobile
 - Open Settings (top-right → Settings) while on mobile or using Device Toolbar.
 - Ensure the modal's header and the "Danger zone" section (Reset everything) are visible and reachable by scrolling.
